@@ -35,6 +35,7 @@ var getChapter = async function(chapter, i, length) {
   try {
     let key = await getChapterKey(chapter.chapter_id)
     let content = await getChapterContent(chapter.chapter_id, key)
+    console.log('content',content)
     let chapterInfo = content.chapter_info
     if (Object.keys(chapterInfo).length != 0) {
       let contentTitle = chapterInfo.chapter_title
@@ -88,12 +89,21 @@ var getChapterContent = async function(cid, key) {
 var get = function(options) {
   let params = Object.assign({}, para, options.para)
   return new Promise((resolve, reject) => {
+    if (options.url.includes('get_cpt_ifm')){
+      console.log("请求",{
+        "url":mixin.baseUrl + options.url,
+        "params":params
+      })
+    }
     axios
       .get(mixin.baseUrl + options.url, {
         params: params
       })
       .then(response => {
         let data = decrypt(response.data.trim())
+        if (options.url.includes('get_cpt_ifm')){
+          console.log("response.data.$dcy",data)
+        }
         var lastIndex = data.lastIndexOf('}')
         data = data.substr(0, lastIndex + 1)
         let json = JSON.parse(data)

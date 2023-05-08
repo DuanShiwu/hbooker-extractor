@@ -7,6 +7,8 @@ const mixin = {
   withCredentials: false //跨域请求是否使用凭证
 }
 
+console.log("baseUrl",mixin.baseUrl)
+
 const para = {
   app_version: '2.3.020',
   device_token: 'ciweimao_powered_by_zsakvo_with_vue'
@@ -14,6 +16,8 @@ const para = {
 
 axios.interceptors.response.use(
   response => {
+    // console.log("response",response.config)
+    // console.log("response",response.config.url)
     return response
   },
   error => {
@@ -60,14 +64,23 @@ axios.interceptors.response.use(
 )
 
 function get(options, final) {
+  //拷贝
   let params = Object.assign({}, para, options.para)
+
   return new Promise((resolve, reject) => {
     axios
       .get(mixin.baseUrl + options.url, {
         params: params
       })
       .then(response => {
+        console.log("请求",{
+          "url":mixin.baseUrl + options.url,
+          "params":params
+        })
+        console.log("response.data",response.data)
         let data = this.$dcy(response.data.trim())
+        console.log("response.data.$dcy",data)
+        console.log("\n")
         var lastIndex = data.lastIndexOf('}')
         data = data.substr(0, lastIndex + 1)
         let json = JSON.parse(data)
@@ -111,6 +124,12 @@ function post(obj, final) {
       })
       .then(
         response => {
+          // console.log("request",{
+          //   url: options.baseUrl + options.url,
+          //   data: options.para,
+          //   headers: options.header,
+          //   withCredentials: options.withCredentials
+          // })
           let data = this.$dcy(response.data.trim())
           var lastIndex = data.lastIndexOf('}')
           data = data.substr(0, lastIndex + 1)

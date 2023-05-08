@@ -10,6 +10,7 @@ var decrypt = function decrypt(data, key) {
       .createHash('sha256')
       .update('zG2nSeEfSHfvTCHy5LCcqtBbQehKNLXn')
       .digest()
+    // console.log("key",key)
   } else {
     key = crypto
       .createHash('sha256')

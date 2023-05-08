@@ -72,7 +72,6 @@ export default {
         account: this.account
       }
     }).then(res => {
-      console.log(res)
       this.shelves = res.shelf_list
       this.shelves.push({
         shelf_id: 'login',
@@ -109,6 +108,10 @@ export default {
       })
     })
   },
+  mounted() {
+    console.log('this.shelfs', this.shelfs)
+    console.log('this.books', this.books)
+  },
   data() {
     return {
       loginToken: '',
@@ -140,39 +143,49 @@ export default {
         },
         {
           title: '操作',
+          /*
+            <div style="display: 'flex'">
+              <div class='option-click go-detail' onclick='() => this.goDetail(this.books[params['index']])'>
+                详情
+              </div>
+              <div class='option-click option-download' onclick='() => this.clickBook(this.books[params['index']])' style="marginLeft: '8px'">
+                下载
+              </div>
+            </div>
+          */
           render: (h, params) => {
             return h(
-              'div',
-              {
-                style: {
-                  display: 'flex'
-                }
-              },
-              [
-                h(
-                  'div',
-                  {
-                    class: 'option-click go-detail',
-                    on: {
-                      click: () => this.goDetail(this.books[params['index']])
-                    }
-                  },
-                  '详情'
-                ),
-                h(
-                  'div',
-                  {
-                    class: 'option-click option-download',
-                    style: {
-                      marginLeft: '8px'
-                    },
-                    on: {
-                      click: () => this.clickBook(this.books[params['index']])
-                    }
-                  },
-                  '下载'
-                )
-              ]
+                'div',
+                {
+                  style: {
+                    display: 'flex'
+                  }
+                },
+                [
+                  h(
+                      'div',
+                      {
+                        class: 'option-click go-detail',
+                        on: {
+                          click: () => this.goDetail(this.books[params['index']])
+                        }
+                      },
+                      '详情'
+                  ),
+                  h(
+                      'div',
+                      {
+                        class: 'option-click option-download',
+                        style: {
+                          marginLeft: '8px'
+                        },
+                        on: {
+                          click: () => this.clickBook(this.books[params['index']])
+                        }
+                      },
+                      '下载'
+                  )
+                ]
             )
           }
         }
@@ -231,6 +244,24 @@ export default {
       }
     },
     async clickBook(book) {
+      /*
+      book_info
+      :
+      Object
+      last_read_chapter_id
+      :
+      110285674
+      last_read_chapter_title
+      :
+      "570 是时候给A级玩家们一点小小的震撼了"
+      last_read_chapter_update_time
+      :
+      1683552210
+      top_time
+      :
+      0
+       */
+      console.log("book", book);
       let that = this
       that.canDl = false
       that.dlButton = '请稍后'
@@ -251,6 +282,7 @@ export default {
         let chapters = await this.getChapter(divisionID)
         allCahpters.push(...chapters)
       }
+      console.log('allCahpters',allCahpters);
       that.chapterNum = allCahpters.length
       var worker = new GBWorker()
       worker.postMessage({
@@ -259,7 +291,9 @@ export default {
         account: this.account,
         para: allCahpters
       })
-      worker.onmessage = function(evt) {
+      worker.onmessage = function (evt) {
+        console.log('evt',evt)
+        console.log('evt.data',evt.data)
         let msg = evt.data.msg
         let content = evt.data.content
         switch (msg) {
@@ -298,9 +332,10 @@ export default {
       params.append('division_id', did)
       params.append('app_version', '2.3.020')
       params.append('device_token', 'ciweimao_powered_by_zsakvo_with_vue')
+      // console.log('params', params)
       return await this.$post({
         url: '/chapter/get_updated_chapter_by_division_id',
-        header: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        header: {'Content-Type': 'application/x-www-form-urlencoded'},
         para: params
       }).then(res => {
         let chaptersData = res.chapter_list.map(l => {
@@ -326,13 +361,15 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
-.home{
+.home {
   display flex
   flex-direction column
-  .dl-info{
+
+  .dl-info {
     white-space: pre-wrap;
   }
-  .nav-wrapper{
+
+  .nav-wrapper {
     display flex
     height 64px
     justify-content space-between
@@ -344,24 +381,27 @@ export default {
     background: #fff;
     width: 100%;
     z-index: 200;
-    .title{
+
+    .title {
       cursor pointer
     }
   }
-  .no-books{
+
+  .no-books {
     padding-top 120px
     margin-left 48px
     font-size 14px
   }
 
-  .table-wrapper{
+  .table-wrapper {
     padding: 64px 32px
-    >>>.option-click{
+
+    >>> .option-click {
       cursor pointer
     }
   }
 
-  .loading{
+  .loading {
     padding 64px 32px
     height 80vh
   }
